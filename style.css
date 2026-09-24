@@ -292,3 +292,109 @@ h3 {
     .timeline .date { display: block; min-width: auto; }
     .image-block img { max-height: 220px; }
   }
+/* ===== Правки: авторский блок на титуле ===== */
+.author-block {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: inline-block;
+}
+
+.author-block .group {
+    font-size: clamp(1rem, 1.6vw, 1.25rem);
+    color: var(--accent-bright);
+    letter-spacing: 2px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.author-block .presenter {
+    font-size: clamp(0.9rem, 1.4vw, 1.1rem);
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* ===== Правки: рикролл-ссылка на финале ===== */
+.rickroll {
+    margin-top: 40px;
+}
+
+.rickroll a {
+    display: inline-block;
+    font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 10px 28px;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+    opacity: 0.75;
+}
+
+.rickroll a:hover {
+    color: var(--accent-bright);
+    border-color: var(--accent-bright);
+    opacity: 1;
+    text-shadow: 0 0 20px rgba(212, 160, 23, 0.6);
+    transform: scale(1.05);
+}
+
+/* ===== Вечеринка: тряска экрана ===== */
+@keyframes screen-shake {
+    0%, 100% { transform: translate(0, 0) rotate(0); }
+    10% { transform: translate(-10px, 6px) rotate(-1deg); }
+    20% { transform: translate(10px, -6px) rotate(1deg); }
+    30% { transform: translate(-8px, -4px) rotate(-0.8deg); }
+    40% { transform: translate(8px, 4px) rotate(0.8deg); }
+    50% { transform: translate(-6px, 6px) rotate(-0.6deg); }
+    60% { transform: translate(6px, -6px) rotate(0.6deg); }
+    70% { transform: translate(-4px, 4px) rotate(-0.4deg); }
+    80% { transform: translate(4px, -4px) rotate(0.4deg); }
+    90% { transform: translate(-2px, 2px) rotate(-0.2deg); }
+}
+
+.presentation.party-shake {
+    animation: screen-shake 0.8s ease;
+}
+
+/* ===== Вечеринка: летящие эмодзи ===== */
+.flying-emoji {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    font-size: 3rem;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+    animation: fly-across 2s ease-out forwards;
+    will-change: transform, opacity;
+}
+
+@keyframes fly-across {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+    }
+    15% {
+        opacity: 1;
+    }
+    70% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1.8) rotate(var(--rot));
+    }
+}
+
+/* ===== Вечеринка: лёгкое свечение экрана ===== */
+@keyframes party-flash {
+    0%, 100% { background: var(--bg-dark); }
+    50% { background: #2e1a00; }
+}
+
+body.party-flash {
+    animation: party-flash 0.8s ease;
+}
+
