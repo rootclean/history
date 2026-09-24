@@ -31,7 +31,6 @@ body {
     justify-content: center;
 }
 
-/* ===== Слайды ===== */
 .slide {
     position: absolute;
     inset: 0;
@@ -56,7 +55,6 @@ body {
     width: 100%;
 }
 
-/* ===== Титульный слайд ===== */
 .title-slide {
     text-align: center;
 }
@@ -103,7 +101,6 @@ body {
     font-style: italic;
 }
 
-/* ===== Заголовки ===== */
 h2 {
     font-size: clamp(1.8rem, 3.5vw, 2.8rem);
     color: var(--accent-bright);
@@ -119,7 +116,6 @@ h3 {
     font-size: 1.2rem;
 }
 
-/* ===== Две колонки ===== */
 .two-columns {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -137,7 +133,6 @@ h3 {
     color: var(--accent-bright);
 }
 
-/* ===== Картинки ===== */
 .image-block {
     text-align: center;
 }
@@ -160,7 +155,6 @@ h3 {
     font-style: italic;
 }
 
-/* ===== Таймлайн ===== */
 .timeline {
     list-style: none;
     position: relative;
@@ -205,7 +199,6 @@ h3 {
     font-weight: bold;
 }
 
-/* ===== Карточки ===== */
 .cards {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -232,7 +225,6 @@ h3 {
     font-size: 0.95rem;
 }
 
-/* ===== Навигация ===== */
 .nav-btn {
     position: fixed;
     top: 50%;
@@ -274,7 +266,6 @@ h3 {
     pointer-events: none;
 }
 
-/* ===== Точки индикации ===== */
 .dots {
     position: fixed;
     bottom: 24px;
@@ -301,7 +292,6 @@ h3 {
     transform: scale(1.2);
 }
 
-/* ===== Счётчик ===== */
 .counter {
     position: fixed;
     bottom: 24px;
@@ -312,7 +302,6 @@ h3 {
     z-index: 10;
 }
 
-/* ===== Рикролл-ссылка ===== */
 .rickroll {
     margin-top: 40px;
 }
@@ -338,13 +327,7 @@ h3 {
     transform: scale(1.05);
 }
 
-/* ============================================================
-   MORPH-ПЕРЕХОД
-   Старый слайд мягко уплывает назад и растворяется,
-   новый — наезжает из чуть большего масштаба и проявляется.
-   Оба процесса идут одновременно — получается «перетекание».
-   ============================================================ */
-
+/* ===== MORPH-переход ===== */
 @keyframes morph-out {
     0% {
         opacity: 1;
@@ -386,7 +369,9 @@ h3 {
 }
 
 /* ============================================================
-   Эффект «Символы» — буквы заголовка появляются по одной
+   Эффект «Символы»
+   Буквы невидимы всегда — анимация включается только тогда,
+   когда слайд получает класс .active (т.е. когда его показывают)
    ============================================================ */
 
 .morph-title .char {
@@ -394,8 +379,11 @@ h3 {
     opacity: 0;
     transform: translateY(14px) scale(1.15);
     filter: blur(4px);
-    animation: char-appear 0.55s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
     will-change: transform, opacity, filter;
+}
+
+.slide.active .morph-title .char {
+    animation: char-appear 0.55s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
 }
 
 @keyframes char-appear {
@@ -426,7 +414,6 @@ h3 {
     animation: screen-shake 0.9s ease;
 }
 
-/* ===== Вспышка фона ===== */
 @keyframes party-flash {
     0%, 100% { background: var(--bg-dark); }
     50% { background: #2a1f10; }
@@ -436,7 +423,6 @@ body.party-flash {
     animation: party-flash 0.9s ease;
 }
 
-/* ===== Адаптив ===== */
 @media (max-width: 768px) {
     .slide { padding: 60px 20px 100px; }
     .two-columns { grid-template-columns: 1fr; gap: 20px; }
