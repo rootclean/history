@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let isAnimating = false;
     const totalSlides = slides.length;
 
-    // Создаём точки индикации
     slides.forEach((_, i) => {
         const dot = document.createElement('div');
         dot.classList.add('dot');
@@ -24,10 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const dots = document.querySelectorAll('.dot');
     totalEl.textContent = totalSlides;
 
-    // ===== Разбиваем текст на буквы (эффект «Символы») =====
+    // ===== Разбиваем заголовок на буквы СРАЗУ при загрузке =====
+    // Так пользователь никогда не увидит «сырой» текст —
+    // буквы изначально невидимы (opacity: 0 через CSS),
+    // и включаются только когда на слайде появляется класс .active.
     function splitIntoChars(el) {
         if (!el) return;
-        if (el.dataset.split === 'true') return;  // уже разбито
         const text = el.textContent;
         el.innerHTML = '';
         [...text].forEach((ch, i) => {
@@ -41,22 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
             span.style.animationDelay = (0.35 + i * 0.045) + 's';
             el.appendChild(span);
         });
-        el.dataset.split = 'true';
     }
 
-    // Сброс анимации букв (чтобы при возврате на финальный слайд снова сыграло)
-    function resetChars(el) {
-        if (!el) return;
-        el.dataset.split = 'false';
-        el.textContent = el.dataset.originalText || el.textContent;
-    }
+    if (morphTitle) splitIntoChars(morphTitle);
 
-    // Запоминаем оригинальный текст заголовка
-    if (morphTitle) {
-        morphTitle.dataset.originalText = morphTitle.textContent;
-    }
-
-    // Плавная анимация элементов слайда (для обычных переходов)
     function animateChildren(slide) {
         const children = slide.querySelectorAll('.text, .card, .timeline li, .image-block, .author-block, .rickroll');
         children.forEach((el, i) => {
@@ -77,22 +66,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const goingToLast = (index === totalSlides - 1);
 
-        // ===== МОРФ-ПЕРЕХОД при движении на последний слайд =====
+        // ===== MORPH при переходе на последний слайд =====
         if (goingToLast) {
             isAnimating = true;
             const oldSlide = slides[currentIndex];
             const newSlide = slides[index];
             const oldIndex = currentIndex;
 
-            // Оба слайда активны одновременно — «перетекают» друг в друга
             oldSlide.classList.add('morph-out');
+            // Добавляем .active — именно это включает и morph-in, и анимацию букв
             newSlide.classList.add('active', 'morph-in');
 
-            // Лёгкая тряска + вспышка синхронно с морфом
             presentation.classList.add('party-shake');
             document.body.classList.add('party-flash');
 
-            // Обновляем точки и счётчик сразу
             dots[oldIndex].classList.remove('active');
             dots[index].classList.add('active');
             currentIndex = index;
@@ -100,28 +87,29 @@ document.addEventListener('DOMContentLoaded', () => {
             prevBtn.disabled = currentIndex === 0;
             nextBtn.disabled = currentIndex === totalSlides - 1;
 
-            // Сбрасываем разбивку букв и заново разбиваем — чтобы проигралось каждый раз
-            if (morphTitle) {
-                morphTitle.dataset.split = 'false';
-                morphTitle.textContent = morphTitle.dataset.originalText;
-                // Небольшая задержка, чтобы анимация пошла уже после морфа
-                setTimeout(() => splitIntoChars(morphTitle), 500);
-            }
-
-            // Финализация
             setTimeout(() => {
                 oldSlide.classList.remove('active', 'morph-out');
                 newSlide.classList.remove('morph-in');
                 presentation.classList.remove('party-shake');
                 document.body.classList.remove('party-flash');
-                animateChildren(newSlide);
+                // «67 кликни 67» — одиночный элемент, анимируем как обычно
+                const rick = newSlide.querySelector('.rickroll');
+                if (rick) {
+                    rick.style.opacity = '0';
+                    rick.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        rick.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                        rick.style.opacity = '1';
+                        rick.style.transform = 'translateY(0)';
+                    }, 200);
+                }
                 isAnimating = false;
             }, 950);
 
             return;
         }
 
-        // ===== ОБЫЧНЫЙ переход =====
+        // ===== Обычный переход =====
         slides[currentIndex].classList.remove('active');
         dots[currentIndex].classList.remove('active');
 
@@ -143,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
     nextBtn.addEventListener('click', nextSlide);
     prevBtn.addEventListener('click', prevSlide);
 
-    // Клавиатура
     document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowRight' || e.key === ' ') {
             e.preventDefault();
@@ -158,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Свайпы
     let touchStartX = 0;
     let touchEndX = 0;
 
