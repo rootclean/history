@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentEl = document.getElementById('current');
     const totalEl = document.getElementById('total');
     const presentation = document.querySelector('.presentation');
+    const morphTitle = document.querySelector('.morph-title');
 
     let currentIndex = 0;
     let isAnimating = false;
@@ -23,34 +24,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const dots = document.querySelectorAll('.dot');
     totalEl.textContent = totalSlides;
 
-    // Запуск эмодзи-фейерверка
-    function triggerEmojis() {
-        const emojis = ['🎉', '🎊', '😈', '💥', '⚡', '🔥', '💫', '🎈', '🥳', '😼'];
-
-        for (let i = 0; i < 14; i++) {
-            const emoji = document.createElement('div');
-            emoji.classList.add('flying-emoji');
-            emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-
-            const angle = Math.random() * Math.PI * 2;
-            const distance = 200 + Math.random() * 350;
-            const tx = Math.cos(angle) * distance;
-            const ty = Math.sin(angle) * distance;
-            const rot = (Math.random() * 720 - 360) + 'deg';
-
-            emoji.style.setProperty('--tx', tx + 'px');
-            emoji.style.setProperty('--ty', ty + 'px');
-            emoji.style.setProperty('--rot', rot);
-            emoji.style.animationDelay = (Math.random() * 0.4 + 0.2) + 's';
-            emoji.style.fontSize = (1.8 + Math.random() * 2) + 'rem';
-
-            document.body.appendChild(emoji);
-
-            setTimeout(() => emoji.remove(), 2800);
-        }
+    // ===== Разбиваем текст на буквы (эффект «Символы») =====
+    function splitIntoChars(el) {
+        if (!el) return;
+        if (el.dataset.split === 'true') return;  // уже разбито
+        const text = el.textContent;
+        el.innerHTML = '';
+        [...text].forEach((ch, i) => {
+            const span = document.createElement('span');
+            span.className = 'char';
+            if (ch === ' ') {
+                span.innerHTML = '&nbsp;';
+            } else {
+                span.textContent = ch;
+            }
+            span.style.animationDelay = (0.35 + i * 0.045) + 's';
+            el.appendChild(span);
+        });
+        el.dataset.split = 'true';
     }
 
-    // Плавная анимация элементов слайда
+    // Сброс анимации букв (чтобы при возврате на финальный слайд снова сыграло)
+    function resetChars(el) {
+        if (!el) return;
+        el.dataset.split = 'false';
+        el.textContent = el.dataset.originalText || el.textContent;
+    }
+
+    // Запоминаем оригинальный текст заголовка
+    if (morphTitle) {
+        morphTitle.dataset.originalText = morphTitle.textContent;
+    }
+
+    // Плавная анимация элементов слайда (для обычных переходов)
     function animateChildren(slide) {
         const children = slide.querySelectorAll('.text, .card, .timeline li, .image-block, .author-block, .rickroll');
         children.forEach((el, i) => {
@@ -71,47 +77,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const goingToLast = (index === totalSlides - 1);
 
-        // === ВОРОНКА (при переходе на последний слайд) ===
+        // ===== МОРФ-ПЕРЕХОД при движении на последний слайд =====
         if (goingToLast) {
             isAnimating = true;
             const oldSlide = slides[currentIndex];
             const newSlide = slides[index];
             const oldIndex = currentIndex;
 
-            // 1. Старый слайд закручивается + тряска + вспышка
-            oldSlide.classList.add('funnel-out');
+            // Оба слайда активны одновременно — «перетекают» друг в друга
+            oldSlide.classList.add('morph-out');
+            newSlide.classList.add('active', 'morph-in');
+
+            // Лёгкая тряска + вспышка синхронно с морфом
             presentation.classList.add('party-shake');
             document.body.classList.add('party-flash');
 
-            // 2. В середине анимации подменяем слайд
+            // Обновляем точки и счётчик сразу
+            dots[oldIndex].classList.remove('active');
+            dots[index].classList.add('active');
+            currentIndex = index;
+            currentEl.textContent = currentIndex + 1;
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === totalSlides - 1;
+
+            // Сбрасываем разбивку букв и заново разбиваем — чтобы проигралось каждый раз
+            if (morphTitle) {
+                morphTitle.dataset.split = 'false';
+                morphTitle.textContent = morphTitle.dataset.originalText;
+                // Небольшая задержка, чтобы анимация пошла уже после морфа
+                setTimeout(() => splitIntoChars(morphTitle), 500);
+            }
+
+            // Финализация
             setTimeout(() => {
-                oldSlide.classList.remove('active', 'funnel-out');
-                dots[oldIndex].classList.remove('active');
-
-                currentIndex = index;
-                newSlide.classList.add('active', 'funnel-in');
-                dots[currentIndex].classList.add('active');
-                currentEl.textContent = currentIndex + 1;
-                prevBtn.disabled = currentIndex === 0;
-                nextBtn.disabled = currentIndex === totalSlides - 1;
-
-                // 3. Эмодзи летят, пока новый слайд выкручивается
-                triggerEmojis();
-
-                setTimeout(() => {
-                    newSlide.classList.remove('funnel-in');
-                    presentation.classList.remove('party-shake');
-                    document.body.classList.remove('party-flash');
-                    animateChildren(newSlide);
-                    isAnimating = false;
-                }, 850);
-
-            }, 550);
+                oldSlide.classList.remove('active', 'morph-out');
+                newSlide.classList.remove('morph-in');
+                presentation.classList.remove('party-shake');
+                document.body.classList.remove('party-flash');
+                animateChildren(newSlide);
+                isAnimating = false;
+            }, 950);
 
             return;
         }
 
-        // === ОБЫЧНЫЙ переход ===
+        // ===== ОБЫЧНЫЙ переход =====
         slides[currentIndex].classList.remove('active');
         dots[currentIndex].classList.remove('active');
 
@@ -133,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
     nextBtn.addEventListener('click', nextSlide);
     prevBtn.addEventListener('click', prevSlide);
 
-    // Управление с клавиатуры
+    // Клавиатура
     document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowRight' || e.key === ' ') {
             e.preventDefault();
@@ -148,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Свайпы для мобильных
+    // Свайпы
     let touchStartX = 0;
     let touchEndX = 0;
 
