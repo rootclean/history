@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const dots = document.querySelectorAll('.dot');
     totalEl.textContent = totalSlides;
 
-    // ===== Вечеринка при переходе на последний слайд =====
     function triggerParty() {
         presentation.classList.add('party-shake');
         document.body.classList.add('party-flash');
@@ -34,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
             emoji.classList.add('flying-emoji');
             emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
 
-            // Случайный угол разлёта
             const angle = Math.random() * Math.PI * 2;
             const distance = 250 + Math.random() * 400;
             const tx = Math.cos(angle) * distance;
@@ -62,8 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (index < 0 || index >= totalSlides) return;
         if (index === currentIndex) return;
 
-        // Проверяем: это переход на самый последний слайд?
-        const goingToLast = (index === totalSlides - 1) && (currentIndex !== index);
+        const goingToLast = (index === totalSlides - 1);
 
         slides[currentIndex].classList.remove('active');
         dots[currentIndex].classList.remove('active');
@@ -88,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
     nextBtn.addEventListener('click', nextSlide);
     prevBtn.addEventListener('click', prevSlide);
 
-    // Управление с клавиатуры
     document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowRight' || e.key === ' ') {
             e.preventDefault();
@@ -103,7 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Свайпы для мобильных
     let touchStartX = 0;
     let touchEndX = 0;
 
@@ -119,71 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     prevBtn.disabled = true;
 
-    // Плавное появление элементов при смене слайда
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((m) => {
             if (m.target.classList.contains('active')) {
                 const children = m.target.querySelectorAll('.text, .card, .timeline li, .image-block, .author-block, .rickroll');
-                children.forEach((el, i) => {
-                    el.style.opacity = '0';
-                    el.style.transform = 'translateY(20px)';
-                    setTimeout(() => {
-                        el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                        el.style.opacity = '1';
-                        el.style.transform = 'translateY(0)';
-                    }, 100 + i * 80);
-                });
-            }
-        });
-    });
-
-    slides.forEach(slide => observer.observe(slide, { attributes: true, attributeFilter: ['class'] }));
-});        nextBtn.disabled = currentIndex === totalSlides - 1;
-    }
-
-    function nextSlide() { goToSlide(currentIndex + 1); }
-    function prevSlide() { goToSlide(currentIndex - 1); }
-
-    nextBtn.addEventListener('click', nextSlide);
-    prevBtn.addEventListener('click', prevSlide);
-
-    // Управление с клавиатуры
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight' || e.key === ' ') {
-            e.preventDefault();
-            nextSlide();
-        } else if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            prevSlide();
-        } else if (e.key === 'Home') {
-            goToSlide(0);
-        } else if (e.key === 'End') {
-            goToSlide(totalSlides - 1);
-        }
-    });
-
-    // Свайпы для мобильных
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    document.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-    });
-
-    document.addEventListener('touchend', (e) => {
-        touchEndX = e.changedTouches[0].screenX;
-        if (touchStartX - touchEndX > 50) nextSlide();
-        if (touchEndX - touchStartX > 50) prevSlide();
-    });
-
-    // Начальное состояние кнопок
-    prevBtn.disabled = true;
-
-    // Лёгкая анимация "въезда" элементов при смене слайда
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((m) => {
-            if (m.target.classList.contains('active')) {
-                const children = m.target.querySelectorAll('.text, .card, .timeline li, .image-block');
                 children.forEach((el, i) => {
                     el.style.opacity = '0';
                     el.style.transform = 'translateY(20px)';
