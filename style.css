@@ -312,7 +312,7 @@ h3 {
     z-index: 10;
 }
 
-/* ===== Рикролл-ссылка на финале ===== */
+/* ===== Рикролл-ссылка ===== */
 .rickroll {
     margin-top: 40px;
 }
@@ -338,108 +338,102 @@ h3 {
     transform: scale(1.05);
 }
 
-/* ===== Воронка (Funnel) — закручивание старого слайда ===== */
-@keyframes funnel-out {
+/* ============================================================
+   MORPH-ПЕРЕХОД
+   Старый слайд мягко уплывает назад и растворяется,
+   новый — наезжает из чуть большего масштаба и проявляется.
+   Оба процесса идут одновременно — получается «перетекание».
+   ============================================================ */
+
+@keyframes morph-out {
     0% {
         opacity: 1;
-        transform: scale(1) rotate(0deg);
-        filter: blur(0) brightness(1);
-    }
-    60% {
-        opacity: 0.8;
-        filter: blur(2px) brightness(1.3);
+        transform: scale(1) translateY(0);
+        filter: blur(0);
     }
     100% {
         opacity: 0;
-        transform: scale(0.02) rotate(1080deg);
-        filter: blur(12px) brightness(2);
+        transform: scale(0.92) translateY(-12px);
+        filter: blur(6px);
     }
 }
 
-/* ===== Воронка (Funnel) — раскручивание нового слайда ===== */
-@keyframes funnel-in {
+@keyframes morph-in {
     0% {
         opacity: 0;
-        transform: scale(0.02) rotate(-1080deg);
-        filter: blur(12px) brightness(2);
-    }
-    40% {
-        opacity: 0.8;
-        filter: blur(2px) brightness(1.3);
+        transform: scale(1.08) translateY(12px);
+        filter: blur(6px);
     }
     100% {
         opacity: 1;
-        transform: scale(1) rotate(0deg);
-        filter: blur(0) brightness(1);
+        transform: scale(1) translateY(0);
+        filter: blur(0);
     }
 }
 
-.slide.funnel-out {
-    animation: funnel-out 0.6s cubic-bezier(0.5, 0, 0.9, 0.4) forwards;
+.slide.morph-out {
+    animation: morph-out 0.85s cubic-bezier(0.4, 0, 0.6, 1) forwards;
     transition: none !important;
     pointer-events: none;
     z-index: 1;
 }
 
-.slide.funnel-in {
-    animation: funnel-in 0.85s cubic-bezier(0.15, 0.7, 0.35, 1) forwards;
+.slide.morph-in {
+    animation: morph-in 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
     transition: none !important;
     pointer-events: auto;
     z-index: 2;
 }
 
+/* ============================================================
+   Эффект «Символы» — буквы заголовка появляются по одной
+   ============================================================ */
+
+.morph-title .char {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(14px) scale(1.15);
+    filter: blur(4px);
+    animation: char-appear 0.55s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+    will-change: transform, opacity, filter;
+}
+
+@keyframes char-appear {
+    0% {
+        opacity: 0;
+        transform: translateY(14px) scale(1.15);
+        filter: blur(4px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
 /* ===== Тряска экрана ===== */
 @keyframes screen-shake {
     0%, 100% { transform: translate(0, 0) rotate(0); }
-    10% { transform: translate(-8px, 5px) rotate(-0.8deg); }
-    20% { transform: translate(8px, -5px) rotate(0.8deg); }
-    30% { transform: translate(-6px, -3px) rotate(-0.6deg); }
-    40% { transform: translate(6px, 3px) rotate(0.6deg); }
-    50% { transform: translate(-5px, 5px) rotate(-0.5deg); }
-    60% { transform: translate(5px, -5px) rotate(0.5deg); }
-    70% { transform: translate(-3px, 3px) rotate(-0.3deg); }
-    80% { transform: translate(3px, -3px) rotate(0.3deg); }
-    90% { transform: translate(-2px, 2px) rotate(-0.2deg); }
+    15% { transform: translate(-6px, 4px) rotate(-0.6deg); }
+    30% { transform: translate(6px, -4px) rotate(0.6deg); }
+    45% { transform: translate(-4px, -2px) rotate(-0.4deg); }
+    60% { transform: translate(4px, 2px) rotate(0.4deg); }
+    75% { transform: translate(-2px, 2px) rotate(-0.2deg); }
+    90% { transform: translate(2px, -2px) rotate(0.2deg); }
 }
 
 .presentation.party-shake {
-    animation: screen-shake 1.1s ease;
+    animation: screen-shake 0.9s ease;
 }
 
-/* ===== Летящие эмодзи ===== */
-.flying-emoji {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    font-size: 3rem;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0;
-    animation: fly-across 2s ease-out forwards;
-    will-change: transform, opacity;
-}
-
-@keyframes fly-across {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
-    }
-    15% { opacity: 1; }
-    70% { opacity: 1; }
-    100% {
-        opacity: 0;
-        transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1.8) rotate(var(--rot));
-    }
-}
-
-/* ===== Вспышка экрана ===== */
+/* ===== Вспышка фона ===== */
 @keyframes party-flash {
     0%, 100% { background: var(--bg-dark); }
-    50% { background: #2e1a00; }
+    50% { background: #2a1f10; }
 }
 
 body.party-flash {
-    animation: party-flash 1.1s ease;
+    animation: party-flash 0.9s ease;
 }
 
 /* ===== Адаптив ===== */
